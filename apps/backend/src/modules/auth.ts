@@ -21,18 +21,18 @@ export async function hashPassword(password : string): Promise<string> {
 export async function verifyPassword(password :string, hashPassword :string) : Promise<boolean> {
     return bcrypt.compare(password , hashPassword)
 }
-export function signJwt(userId :string) : string {
+export function signJwt(ownerId :string) : string {
     return jwt.sign(
-        {userId},
+        {ownerId},
         JWT_SECRET,
         {expiresIn : "7d"}
     )
 }
 export function verifyJwt(
     token :string
-) : {userId :string} | null {
+) : {ownerId :string} | null {
     try {
-        return jwt.verify(token , JWT_SECRET)  as {userId:string}
+        return jwt.verify(token , JWT_SECRET)  as {ownerId:string}
     } catch (error) {
         return null;
     }
@@ -45,7 +45,7 @@ export async function createUser(email :string  , password : string, name :strin
         data : {
             email,
             name,
-            password : hashedPassword,
+            passwordHash : hashedPassword,
         },
     });
     return user;
@@ -63,7 +63,7 @@ export async function loginUser(email :string , password : string) {
         throw new Error("Invalid email or password")
     }
 
-    const valid = await verifyPassword(password , user.password)
+    const valid = await verifyPassword(password , user.passwordHash)
 
     if(!valid) {
         throw new Error("Invalid email or password")
