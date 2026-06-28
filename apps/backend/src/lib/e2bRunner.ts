@@ -85,6 +85,36 @@ async function createSandboxForProject(): Promise<{sandboxId : string , previewU
     return {previewUrl , sandboxId : sandbox.sandboxId}
 }
 
+async function resumeSanbox(sandboxId : string) : Promise<{sandbox : Sandbox , sandboxId :string } | null> {
+  try {
+      const sandbox = await Sandbox.connect(sandboxId);
+      const isRunning = await  sandbox.isRunning();
+      if(!isRunning) {
+          return null;
+      }
+      return {sandbox , sandboxId}
+  } catch (error) {
+    return null;
+  }
+}
+
+async function recreateSandboxFromFiles(existingFiles : ProjectFile[]) : Promise<{sandboxId : string; previewUrl :string}> {
+    const sandbox = await Sandbox.create({
+        timeoutMs : MAX_TIMEOUT_MS
+    });
+    const templatesFiles = readTemplateFiles();
+    await writeFilesSandbox(sandbox , templatesFiles);
+    const overrides : GeneratedFile[] = existingFiles.map((f) => ({
+        path : f.path,
+        content : f.content,
+    }));
+    await writeFilesSandbox(sandbox, overrides);
+    await installAndStartDevServer(sandbox)
+    const  host = sandbox.getHost(DEV_SERVER_PORT);
+    const  previewUrl = `http://${host}`;
+    return {previewUrl , sandboxId : sandbox.sandboxId};
+}
+
 
 
 
