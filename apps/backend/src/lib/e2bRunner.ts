@@ -70,7 +70,7 @@ async function installAndStartDevServer(sandbox : Sandbox): Promise<void> {
     await new Promise((resolve) => setTimeout(resolve, 2000));
 }
 
-async function createSandboxForProject(): Promise<{sandboxId : string , previewUrl : string}> {
+export async function createSandboxForProject(): Promise<{sandboxId : string , previewUrl : string}> {
     const sandbox = await Sandbox.create({
         timeoutMs : MAX_TIMEOUT_MS
     })
@@ -85,7 +85,7 @@ async function createSandboxForProject(): Promise<{sandboxId : string , previewU
     return {previewUrl , sandboxId : sandbox.sandboxId}
 }
 
-async function resumeSandbox(sandboxId : string) : Promise<{sandbox : Sandbox , sandboxId :string } | null> {
+export async function resumeSandbox(sandboxId : string) : Promise<{sandbox : Sandbox , sandboxId :string } | null> {
   try {
       const sandbox = await Sandbox.connect(sandboxId);
       const isRunning = await  sandbox.isRunning();
@@ -98,7 +98,7 @@ async function resumeSandbox(sandboxId : string) : Promise<{sandbox : Sandbox , 
   }
 }
 
-async function recreateSandboxFromFiles(existingFiles : ProjectFile[]) : Promise<{sandboxId : string; previewUrl :string}> {
+export async function recreateSandboxFromFiles(existingFiles : ProjectFile[]) : Promise<{sandboxId : string; previewUrl :string}> {
     const sandbox = await Sandbox.create({
         timeoutMs : MAX_TIMEOUT_MS
     });
@@ -115,7 +115,7 @@ async function recreateSandboxFromFiles(existingFiles : ProjectFile[]) : Promise
     return {previewUrl , sandboxId : sandbox.sandboxId};
 }
 
-async function applyFilesToSandbox(sandboxId : string, files: GeneratedFile[]) : Promise<void> {
+export async function applyFilesToSandbox(sandboxId : string, files: GeneratedFile[]) : Promise<void> {
     const handle = await resumeSandbox(sandboxId);
     if(!handle) {
         throw new Error(`Sandbox ${sandboxId} is not running , cannot apply files`)
