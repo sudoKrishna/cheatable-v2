@@ -85,7 +85,7 @@ async function createSandboxForProject(): Promise<{sandboxId : string , previewU
     return {previewUrl , sandboxId : sandbox.sandboxId}
 }
 
-async function resumeSanbox(sandboxId : string) : Promise<{sandbox : Sandbox , sandboxId :string } | null> {
+async function resumeSandbox(sandboxId : string) : Promise<{sandbox : Sandbox , sandboxId :string } | null> {
   try {
       const sandbox = await Sandbox.connect(sandboxId);
       const isRunning = await  sandbox.isRunning();
@@ -115,6 +115,27 @@ async function recreateSandboxFromFiles(existingFiles : ProjectFile[]) : Promise
     return {previewUrl , sandboxId : sandbox.sandboxId};
 }
 
+async function applyFilesToSandbox(sandboxId : string, files: GeneratedFile[]) : Promise<void> {
+    const handle = await resumeSandbox(sandboxId);
+    if(!handle) {
+        throw new Error(`Sandbox ${sandboxId} is not running , cannot apply files`)
+    }
+    await writeFilesSandbox(handle.sandbox , files)
+}
+
+export async function ensureSandboxRunning(sandboxId: string | null, existingFiles: ProjectFile[]) : Promise<{sandboxId : string; previewUrl : string}> {
+    if(sandboxId) {
+        const handle = await resumeSandbox(sandboxId);
+        if(handle) { 
+            const host = handle.sandbox.getHost(DEV_SERVER_PORT);
+            return {previewUrl : `http://${host}`, sandboxId : handle.sandboxId }
+        }
+    }
+    if(existingFiles.length  > 0) {
+        return recreateSandboxFromFiles(existingFiles)
+    }
+    return createSandboxForProject();
+}
 
 
 
