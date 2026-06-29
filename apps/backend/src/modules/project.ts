@@ -140,4 +140,4 @@ router.delete("/project/:id" , requireAuth , async (req , res) => {
     return res.status(200).json({project})
 })
 
-
+export default router;
