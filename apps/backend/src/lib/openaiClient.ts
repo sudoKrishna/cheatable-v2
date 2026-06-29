@@ -40,6 +40,27 @@ export async function askModelForJSON<T>(systemPrompt : string, userMessage : st
     }
 }
 
+export async function askModelForText(systemPrompt : string, userMessage : string) : Promise<string> {
+const messages = [
+    {
+    role : "system" as const,
+    content : systemPrompt
+   },{
+    role : "user" as const,
+    content : userMessage
+   }
+]
+
+const response = await client.responses.create({
+    model : "gpt-4.1",
+    input : messages,
+    temperature : 0.2,
+})
+
+const text = response.output_text;
+return stripCodeFences(text);
+}
+
 // export async function callFileGenModel(messages : ChatMessage[]) : Promise<string> {
 //     const completion = await openai.chat.completions.create({
 //         model : "gpt-4.1",
