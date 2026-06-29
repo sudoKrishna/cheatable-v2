@@ -114,5 +114,52 @@ try {
     next(error)
 }
 })
+router.post("/:id/edit" , requireAuth , async  (req, res , next) => {
+    try {
+        const {instruction} = req.body;
+        if(!instruction || typeof instruction !== "string") {
+            return res.status(400).json({error : "instruction required"})
+        }
+        const projectId = req.params.id;
+        if(!projectId || typeof projectId !== "string") {
+            return res.status(400).json({error : "projectid required"})
+        }
+        const ownerId = req.user?.id;
+        if(!ownerId || typeof ownerId !== "string") {
+            return res.status(400).json({error : "owner id required"})
+        }
+        const project = await prisma.project.findFirst({
+            where : {id : projectId , ownerId}
+        })
+
+        if(!project) {
+            return res.status(400).json({error : "project not found"})
+        }
+        const projectFiles = await prisma.projectFile.findMany({
+            where : {projectId}
+        })
+        const existingFiles : FileMap  = {};
+        for(const file of  projectFiles) {
+            existingFiles[file.path] = file.content;
+        }
+        const emit = await createEmtter(io, project.id);
+
+        runEditGeneration (
+            project.id,
+            ownerId,
+            existingFiles,
+            instruction,
+            emit
+        ).catch((err) => {
+            console.error('runEditGenenration failed: ', err)
+        })
+        return res.status(200).json({message : "edit stated"})
+
+    } catch (error) {
+        next(error)
+    }
+
+})
+return router;
 }
 
