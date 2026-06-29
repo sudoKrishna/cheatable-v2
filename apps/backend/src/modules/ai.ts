@@ -51,4 +51,34 @@ try {
     })
 }
 }
+export async function generateEditDiff(existingFiles: FileMap, instruction: string): Promise<FileMap> {
+    const userMessage = buildEditUserMessage(existingFiles, instruction)
+    return askModelForJSON(EDIT_SYSTEM_PROMPT, userMessage)
+}
+
+export async function runEditGeneration(projectId:  string , ownerId : string, existingFiles : FileMap , instruction : string, emit : (event : string , payload : unknown) => void)  : Promise<void> {
+    try {
+        emit("generation-started", {})
+        const changedFiles = await generateEditDiff(existingFiles ,instruction)
+        for(const [path ,content] of Object.entries(changedFiles)) {
+            emit("file-generated", {path , content})
+        }
+        const filesArray = Object.entries(changedFiles).map(([path , content])=> ({
+            path , content
+        }))
+    
+        await pushGeneratedFiles(projectId , ownerId , filesArray)
+        await saveFileSnapShot(projectId , changedFiles)
+    
+        const project= await prisma.project.findFirst({
+            where : {id : projectId , ownerId}
+        })
+        emit("generation-complete" , {previewUrl : project?.previewUrl ?? null})
+    } catch (error) {
+        emit("genetaion-err", {
+            message : error instanceof Error ? error.message : "generation failed"
+        })
+    }
+
+}
 
