@@ -79,6 +79,40 @@ export async function runEditGeneration(projectId:  string , ownerId : string, e
             message : error instanceof Error ? error.message : "generation failed"
         })
     }
+}
 
+export function createAiRouter(io :Server){
+const router = Router()
+router.post("/:id/generate" , requireAuth , async (req , res , next) => {
+try {
+    const {prompt} = req.body;
+    if(!prompt || typeof prompt !== "string") {
+        return res.status(400).json({error : "prompt are required"})
+    }
+    const projectId = req.params.id;
+    if(!projectId || typeof projectId !== "string") {
+        return res.status(400).json({error:  "project Id id required"})
+    }
+    const ownerId = req.user?.id;
+    if(!ownerId || typeof ownerId !== "string") {
+        return res.status(400).json({error : "owner id required"})
+    }
+    const project = await prisma.project.findFirst({
+        where : {id : projectId , ownerId}
+    })
+    if(!project) {
+        return res.status(400).json({error : "Project not found"})
+    }
+    const emit = await createEmtter(io , project.id)
+
+    runFullGeneration(project.id , ownerId , prompt , emit).catch((err) => {
+        console.error("runfullgeneration  failed:" , err)
+    })
+
+    return res.status(202).json({message : "generation started"})
+} catch (error) {
+    next(error)
+}
+})
 }
 
