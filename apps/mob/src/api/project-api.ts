@@ -46,4 +46,34 @@ export async function getProjects(token : any) {
     }
     return data;
 }
+export async function updateProject(id: number, name : string, token : string) {
+    const res = await fetch(`${API_URL}/projects/${id}`, {
+        method: "PATCH",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({ name }),
+    });
 
+    const data = await res.json();
+
+    if (!res.ok) {
+        throw new Error(data.error || "Failed, retry");
+    }
+
+    return data;
+}
+export async function deleteProject(id : number , token : string) {
+    const res = await fetch(API_URL + "/projects/" + id , {
+        method : "DELETE",
+        headers : {
+            "Authorication" : `Bearer ${token}`
+        }
+    }) 
+    const data = await res.json();
+    if(!res.ok) {
+        throw new Error(data.error || "failed,  retuy")
+    }
+    return data ;
+}
