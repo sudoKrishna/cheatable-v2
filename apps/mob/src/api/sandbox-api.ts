@@ -32,3 +32,32 @@ export async function stopSandbox(id : any , token : string) {
     }
     return data;
 }
+export async function exexCommad(id :string , token : string) {
+    const res = await fetch(API_URL + id + "/exec" , {
+        method : "POST",
+        headers : {
+            "Content-Type" : "application/json",
+            Authrization : `Beares ${token}`
+        }
+    })
+    const data = await res.json()
+    if(!res.ok) {
+        throw new Error("exec command run error")
+    }
+    return data;
+}
+
+export async function statusCheck(id :string , token : string) {
+    const res = await fetch(API_URL + id + "/status" ,{
+        method : "POST",
+        headers : {
+            "Content-Type" : "application/json",
+            Authrizaton : `Bearer ${token}`
+        }
+    });
+    const data= await res.json()
+    if(!res.json) {
+        throw new Error("status check falied")
+    }
+    return data;
+}
