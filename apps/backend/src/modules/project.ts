@@ -129,7 +129,7 @@ router.patch("/projects/:id" , requireAuth , async (req , res) => {
     return res.status(201).json({project})
 })
 
-router.delete("/project/:id" , requireAuth , async (req , res) => {
+router.delete("/projects/:id" , requireAuth , async (req , res) => {
     const projectId = req.params.id as string;
     const ownerId = req.ownerId!;
     const project = await deleteProject(projectId , ownerId);
