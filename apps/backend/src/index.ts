@@ -5,18 +5,18 @@ import { registerSandboxSocket } from "./sockets/sandbox.socket";
 import { createAiRouter } from "./modules/ai";
 
 
-
+const PORT = 3000;
 
 const app = createApp();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
-    cors: { /* ... */ }
+    cors: {  }
 });
 
 registerSandboxSocket(io);
 
 app.use('/ai', createAiRouter(io));
 
-httpServer.listen(3000, () => {
-    console.log(`Server running on port ${3000}`);
+httpServer.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
 });
