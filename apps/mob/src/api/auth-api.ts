@@ -12,6 +12,7 @@ export async function registerUser(email : any, password : any, name : any) {
     const data = await res.json();
 
     if(!res.ok) {
+        console.log("FULL ERROR DATA:", JSON.stringify(data, null, 2));
         throw new Error(data.error || "Register falied")
     }
 
@@ -29,6 +30,7 @@ export async function loginUser(email : any , password : any) {
     const data = await res.json();
 
     if(!res.ok) {
+        console.log("FULL ERROR DATA:", JSON.stringify(data, null, 2));
         throw new Error(data.error || "Login falied")
     }
     return data;
