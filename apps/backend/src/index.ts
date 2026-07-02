@@ -1,22 +1,20 @@
+console.log("DB URL LOADED:", process.env.DATABASE_URL ? "YES" : "NO");
 import { createServer } from "http";
 import { Server } from "socket.io";
-import { createApp } from "./app";
+import { createApp, mountRoutes } from "./app";
 import { registerSandboxSocket } from "./sockets/sandbox.socket";
-import { createAiRouter } from "./modules/ai";
-
 
 const PORT = 3000;
 
 const app = createApp();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
-    cors: {  }
+    cors: {}
 });
 
 registerSandboxSocket(io);
+mountRoutes(app, io);  
 
-app.use('/ai', createAiRouter(io));
-
-httpServer.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+httpServer.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server running on 0.0.0.0:${PORT}`);
 });

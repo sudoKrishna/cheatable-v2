@@ -16,6 +16,7 @@ export type ProjectFile = {
 }
 
 const TEMPLATE_ROOT = path.join(
+    
     process.cwd(),
     "sandbox-template",
     "react-vite"
